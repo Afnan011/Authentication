@@ -1,5 +1,6 @@
 package dev.afnan.authentication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -10,6 +11,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class registerActivity extends AppCompatActivity{
 
@@ -17,14 +25,14 @@ public class registerActivity extends AppCompatActivity{
     private EditText editName, editEmail, editPhone, editPassword1, editPassword2;
     private Button btnRegisterUser;
     private ProgressBar progressBar;
-  //  private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-       // mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         btnLogin = findViewById(R.id.loginHere);
         btnRegisterUser = findViewById(R.id.createAccount);
@@ -107,8 +115,42 @@ public class registerActivity extends AppCompatActivity{
         }
 
         progressBar.setVisibility(View.VISIBLE);
+        String password = password1;
 
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
 
+                        if (task.isSuccessful()){
+                            User user = new User(name, email, phone);
+
+                            FirebaseDatabase.getInstance().getReference("Users")
+                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                    .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(registerActivity.this, "User has registered successfully", Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(registerActivity.this, loginActivity.class);
+                                        startActivity(intent);
+                                    }
+                                    else{
+//                                        Toast.makeText(registerActivity.this, "Failed to register! try again.", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(registerActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                    progressBar.setVisibility(View.GONE);
+
+                                }
+                            });
+
+                        }else{
+                            Toast.makeText(registerActivity.this, "Failed to register! try again.", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE);
+                        }
+                    }
+                });
 
 
     }
