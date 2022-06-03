@@ -137,7 +137,7 @@ public class registerActivity extends AppCompatActivity{
                                         startActivity(intent);
                                     }
                                     else{
-//                                        Toast.makeText(registerActivity.this, "Failed to register! try again.", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(registerActivity.this, "Failed to register! try again.", Toast.LENGTH_SHORT).show();
                                         Toast.makeText(registerActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                     progressBar.setVisibility(View.GONE);
@@ -147,6 +147,7 @@ public class registerActivity extends AppCompatActivity{
 
                         }else{
                             Toast.makeText(registerActivity.this, "Failed to register! try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(registerActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }
