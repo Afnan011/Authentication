@@ -13,5 +13,10 @@ public class User {
         this.phone = phone;
     }
 
+    public User(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
 
 }

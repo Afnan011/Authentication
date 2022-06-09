@@ -2,6 +2,7 @@ package dev.afnan.authentication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,11 +22,12 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class registerActivity extends AppCompatActivity{
 
-    private TextView btnLogin;
+    private TextView btnLogin, errorMsg;
     private EditText editName, editEmail, editPhone, editPassword1, editPassword2;
     private Button btnRegisterUser;
     private ProgressBar progressBar;
     private FirebaseAuth mAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,9 @@ public class registerActivity extends AppCompatActivity{
         editPhone = findViewById(R.id.phone);
         editPassword1 = findViewById(R.id.password1);
         editPassword2 = findViewById(R.id.password2);
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.register_progressBar);
+        errorMsg = findViewById(R.id.errorMsg_register);
+
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,17 +108,22 @@ public class registerActivity extends AppCompatActivity{
             return;
         }
         if (password2.isEmpty()){
-            editPassword2.setError("Confirm your password");
+            errorMsg.setVisibility(View.VISIBLE);
+            errorMsg.setText("Confirm your password");
+            editPassword2.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_error_bg));
             editPassword2.requestFocus();
             return;
         }
         if (!password1.equals(password2)){
-            editPassword2.setError("Password does not match!");
+            errorMsg.setText("Password does not match!");
+            editPassword2.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_error_bg));
             editPassword2.requestFocus();
             return;
         }
 
         progressBar.setVisibility(View.VISIBLE);
+        editPassword2.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_bg));
+        errorMsg.setVisibility(View.GONE);
         String password = password1;
 
         mAuth.createUserWithEmailAndPassword(email, password)
@@ -124,7 +133,6 @@ public class registerActivity extends AppCompatActivity{
 
                         if (task.isSuccessful()){
                             User user = new User(name, email, phone);
-
                             FirebaseDatabase.getInstance().getReference("Users")
                                     .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                                     .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {

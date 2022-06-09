@@ -3,6 +3,7 @@ package dev.afnan.authentication;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,7 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class loginActivity extends AppCompatActivity{
 
-    private TextView register, forgot;
+    private TextView register, forgot, errorMsg;
     private EditText editEmail, editPassword;
     private Button login;
     private ProgressBar progressBar;
@@ -35,9 +36,10 @@ public class loginActivity extends AppCompatActivity{
         register = findViewById(R.id.registerUser);
         editEmail = findViewById(R.id.email);
         editPassword = findViewById(R.id.password);
-        progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.login_progressBar);
         login = findViewById(R.id.login);
         forgot = findViewById(R.id.forgetPassword);
+        errorMsg = findViewById(R.id.errorMsg);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -92,17 +94,23 @@ public class loginActivity extends AppCompatActivity{
         }
 
         if (password.isEmpty()){
-            editPassword.setError("Password is required!");
+            errorMsg.setVisibility(View.VISIBLE);
+            errorMsg.setText("Password is required!");
+            editPassword.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_error_bg));
             editPassword.requestFocus();
             return;
         }
         if(password.length() < 6){
-            editPassword.setError("Password must be at least 6 character");
+            errorMsg.setVisibility(View.VISIBLE);
+            errorMsg.setText("Password must be at least 6 character");
+            editPassword.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_error_bg));
             editPassword.requestFocus();
             return;
         }
 
         progressBar.setVisibility(View.VISIBLE);
+        editPassword.setBackground(ContextCompat.getDrawable(this, R.drawable.edittext_bg));
+        errorMsg.setVisibility(View.GONE);
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
